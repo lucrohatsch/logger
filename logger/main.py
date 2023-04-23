@@ -2,7 +2,8 @@ import logging
 from logger.enums import lavels
 from datetime import datetime
 import sys
-
+import json
+import inspect
 
 
 class Logger():
@@ -19,25 +20,27 @@ class Logger():
 
 
     def info(self, message:any):
-        msg = self._format_message(message)
-        logging.info(msg)
+        msg = self._format_message(message, "INFO")
+        logging.info(json.dumps(msg))
 
     def error(self, message):
-        msg = self._format_message(message)
-        logging.error(msg)
+        msg = self._format_message(message, "ERROR")
+        logging.error(json.dumps(msg))
     
     def warning(self, message):
-        msg = self._format_message(message)
+        msg = self._format_message(message, "WARNING")
         logging.warning(msg)
 
     def metrics(self, name, value):
         msg = self._format_metric(name, value)
-        logging.info(msg)
+        logging.info(json.dumps(msg))
 
-    def _format_message(self, message:any) -> dict:
+    def _format_message(self, message:any, lavel: str) -> dict:
+        trace_file = inspect.stack()[2].filename 
+        trace_line = inspect.stack()[2].lineno
         return {
-            "lavel":f"{self.lavel}",
-            "time": str(datetime.now()),
+            "lavel":lavel,
+            "trace":f"{trace_file} line {trace_line}",
             "message": str(message)
         }
 
@@ -45,7 +48,5 @@ class Logger():
         return {
             "lavel":f"{self.lavel}",
             "time": str(datetime.now()),
-            "metric": {
-                name: value 
-            } 
+            name: value  
         }
